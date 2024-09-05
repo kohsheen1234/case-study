@@ -2,9 +2,9 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## PPT
+https://docs.google.com/presentation/d/1C1cYQ6B2ONgeRiIXZ4P3HS0U2kkieBi5Fw2xB2TA3Mc/edit?usp=sharing
 
-In the project directory, you can run:
 
 ## Scrape data from partsSelect
 - cd ./partsSelect
