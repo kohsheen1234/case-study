@@ -116,7 +116,7 @@ def query_graph(user_input: str, threshold: float = 0.8):
     print('this is the correct_cypher_query : ',reviewed_query)
 
     attempt = 0
-    max_retries = 10
+    max_retries = 5
     while attempt < max_retries:
         try:  
             result = neo4j_graph.query(reviewed_query, params={"threshold": threshold})

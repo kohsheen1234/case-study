@@ -92,7 +92,7 @@ def similarity_search(prompt: str, threshold: float = 0.7):
             query = f'''
                 MATCH (e:{entity_label})
                 RETURN e
-                LIMIT 10
+                LIMIT 5
             '''
             while True:
                 try:
