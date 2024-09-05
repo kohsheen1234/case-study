@@ -2,17 +2,17 @@
 
 import json
 
-from graph_rag.config import EMBEDDINGS_MODEL, ENTITY_TYPES, RELATION_TYPES, client, neo4j_graph
+from graph_rag.config import EMBEDDINGS_MODEL, GRAPH_ENTITIES, GRAPH_RELATIONSHIPS, client, neo4j_graph
 
 
 SEMANTIC_SEARCH_PROMPT = f'''
     You are a helpful agent designed to fetch information from a graph database. 
     
     The graph database links models, parts, symptoms, brands, product types, videos, installation instructions, stories, and Q&A to the following entity types:
-    {json.dumps(ENTITY_TYPES, indent=4)}
+    {json.dumps(GRAPH_ENTITIES, indent=4)}
     
     Each link has one of the following relationships:
-    {json.dumps(RELATION_TYPES, indent=4)}
+    {json.dumps(GRAPH_RELATIONSHIPS, indent=4)}
 
     Depending on the user prompt, determine if it is possible to answer with the graph database.
         

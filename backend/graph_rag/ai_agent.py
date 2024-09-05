@@ -14,7 +14,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableParallel
 
 
-from graph_rag.config import ENTITY_TYPES
+from graph_rag.config import GRAPH_ENTITIES
 from graph_rag.queries.graph_query import query_db
 from graph_rag.prompts import MEMORY_PARALLEL_PROMPT_TEMPLATE, MEMORY_SEQUENTIAL_PROMPT_TEMPLATE, PARALLEL_PROMPT_TEMPLATE, SEQUENTIAL_PROMPT_TEMPLATE
 from graph_rag.queries.semantic_query import similarity_search
@@ -49,7 +49,7 @@ class CustomPromptTemplate(StringPromptTemplate):
 
         # Create a list of tool names for the tools provided
         kwargs["tool_names"] = ", ".join([tool.name for tool in TOOLS])
-        kwargs["entity_types"] = json.dumps(ENTITY_TYPES, indent=4)
+        kwargs["graph_entity_types"] = json.dumps(GRAPH_ENTITIES, indent=4)
 
         return self.template.format(**kwargs)
 
