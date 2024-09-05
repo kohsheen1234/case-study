@@ -60,9 +60,10 @@ function ChatWindow() {
               }}
               rows="3"
             />
-            <button className="send-button" onClick={handleSend}>
-              Send
-            </button>
+          <button className="send-button" onClick={() => handleSend(input)}>
+            Send
+          </button>
+
           </div>
       </div>
 );

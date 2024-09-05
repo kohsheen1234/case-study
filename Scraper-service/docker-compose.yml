@@ -1,0 +1,36 @@
+version: '3'
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/password  # Set authentication for Neo4j
+      - NEO4JLABS_PLUGINS=["apoc"]  # Install APOC plugin
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*  # Allow unrestricted APOC procedures
+      - NEO4J_dbms_security_procedures_allowlist=apoc.meta.data  # (Optional) Allow specific APOC procedure
+    ports:
+      - "7474:7474"  # Web interface for Neo4j
+      - "7687:7687"  # Bolt protocol for Neo4j
+    volumes:
+      - neo4j_data:/data  # Persist Neo4j data
+
+  app:
+    build: .  # Build the Node.js app from the Dockerfile in the current directory
+    container_name: my_node_app
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687  # Environment variables for your app
+      - NEO4J_USERNAME=neo4j
+      - NEO4J_PASSWORD=password
+    depends_on:
+      - neo4j  # Ensure Neo4j starts before the app
+    volumes:
+      - .:/usr/src/app  # Mount the current directory into the container
+    command: npm start  # Run the app with npm
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'  # Limit the app container to use a maximum of 1 CPU
+          memory: 512M  # Limit the app container to use a maximum of 512MB of memory
+
+volumes:
+  neo4j_data:

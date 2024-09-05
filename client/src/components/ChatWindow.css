@@ -8,9 +8,12 @@
   display: flex;
   flex-direction: column;
   padding-bottom: 2px;
-  font-size: 16px;
+  font-size: 18px;
   margin-top: 60px; 
   margin-bottom: 70px; 
+  /* align-items: center; */
+  margin-left: 15%;
+  margin-right: 15%;
 }
 
 .user-message-container,
@@ -36,7 +39,7 @@
   margin: 2px 0;
   border-radius: 10px;
   clear: both;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 1.4;
   text-align: left;
@@ -44,8 +47,8 @@
 
 .user-message {
   align-self: flex-end;
-  font-size: 13px;
-  background-color: #1b3875;
+  font-size: 18px;
+  background-color: #000000;
   color: #ffffff;
   border-top-right-radius: 0;
   text-align: left;
@@ -53,7 +56,7 @@
 
 .assistant-message {
   align-self: flex-start;
-  background-color: #f6f6f6;
+  background-color: #dcdada;
   border-top-left-radius: 0;
   color: #000000;
   padding: 14px;
@@ -67,19 +70,23 @@
 }
 
 .input-area {
-  font-size: 15px;
+  font-size: 18px;
   padding: 10px;
   bottom: 0;
-  width: 100%;
+  width: 70%;
   display: flex;
+  justify-content: center; /* Center content horizontally */
   border-top: 1px solid #ccc;
   background: #fff;
   position: fixed;
-  width: calc(100% - 40px);
+  left: 50%; /* Move it to the center */
+  transform: translateX(-50%); /* Align to the middle of the screen */
+  align-items: center; /* Center elements vertically */
+  box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better appearance */
+  z-index: 100; /* Keep it on top of other content */
 }
-
 .input-area textarea {
-  font-size: 15px;
+  font-size: 18px;
   flex: 1;
   padding: 10px;
   border-radius: 10px;
@@ -97,7 +104,7 @@
   margin-right: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  font-size: 13px;
+  font-size: 18px;
 }
 
 .input-area button {
@@ -107,5 +114,5 @@
   background-color: #121212;
   color: white;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 18px;
 }

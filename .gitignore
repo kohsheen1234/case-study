@@ -1,1 +1,3 @@
-node_modules
+.venv
+Scraper-service/src/scrape/Data/Models/004621710A_symptoms_details.json
+*.json
