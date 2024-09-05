@@ -10,12 +10,12 @@ In the project directory, you can run:
 - cd ./partsSelect
 - npm start
 
-## Go to 
+## Go to frontend
 - cd ./frontend
 - npm start 
 // the server starts on localhost 3000
 
-## Go to 
+## Go to backend
 - cd ./backend
 - uvicorn main:app --reload
 // the server starts on localhost 8000
