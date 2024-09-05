@@ -7,17 +7,17 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 In the project directory, you can run:
 
 ## Scrape data from partsSelect
-cd ./partsSelect
-npm start
+- cd ./partsSelect
+- npm start
 
 ## Go to 
-cd ./frontend
-npm start 
+- cd ./frontend
+- npm start 
 // the server starts on localhost 3000
 
 ## Go to 
-cd ./backend
-uvicorn main:app --reload
+- cd ./backend
+- uvicorn main:app --reload
 // the server starts on localhost 8000
 
 
