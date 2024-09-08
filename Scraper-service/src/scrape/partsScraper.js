@@ -201,7 +201,7 @@ async function scrapePartSelect(url) {
             partName,
             manufacturerPartNumber,
             manufacturer,
-            additionalManufacturers, // Add this field
+            additionalManufacturers,
             price,
             rating,
             reviewCount,

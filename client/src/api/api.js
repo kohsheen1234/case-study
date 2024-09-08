@@ -3,7 +3,6 @@ export const getAIMessage = async (userQuery) => {
     // Get the sessionId from sessionStorage
     const sessionId = sessionStorage.getItem("sessionId") || "";
 
-    // Create the URL with encoded parameters
     const url = new URL("http://localhost:8000/agent");
     url.searchParams.append("message", userQuery);
     url.searchParams.append("session", sessionId);

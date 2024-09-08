@@ -158,7 +158,7 @@ async function insertModelSymptomData(modelDetails) {
             for (const part of symptom.details) {
                 await tx.run(
                     `MATCH (s:Symptom {name: $symptomName})
-                     MERGE (p:Part {partNumber: $partNumber})
+                     MERGE (p:Part {manufacturerPartNumber: $partNumber})
                      SET p.partName = $partName, 
                          p.fixPercentage = $fixPercentage, 
                          p.partPrice = $partPrice,
@@ -166,7 +166,7 @@ async function insertModelSymptomData(modelDetails) {
                      MERGE (s)-[:FIXED_BY]->(p)`,
                     {
                         symptomName: symptom.symptomName,
-                        partNumber: part.partNumber,
+                        manufacturerPartNumber: part.partNumber,
                         partName: part.partName,
                         fixPercentage: part.fixPercentage,
                         partPrice: part.partPrice,

@@ -10,9 +10,6 @@ load_dotenv()
 
 logging.basicConfig()
 
-EMBEDDINGS_MODEL = "text-embedding-3-small"
-
-
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 neo4j_graph = Neo4jGraph(
@@ -20,6 +17,13 @@ neo4j_graph = Neo4jGraph(
     username=os.environ.get("NEO4J_CURRENT_USERNAME"),
     password=os.environ.get("NEO4J_CURRENT_PASSWORD"),
 )
+
+# Constants
+EMBEDDING_MODELS = {
+    "small": "text-embedding-3-small",
+    "medium": "text-embedding-3-medium",
+    "large": "text-embedding-3-large"
+}
 
 
 GRAPH_ENTITIES = {

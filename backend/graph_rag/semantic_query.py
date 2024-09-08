@@ -2,7 +2,7 @@
 
 import json
 
-from graph_rag.config import EMBEDDINGS_MODEL, GRAPH_ENTITIES, GRAPH_RELATIONSHIPS, client, neo4j_graph
+from graph_rag.config import  GRAPH_ENTITIES, GRAPH_RELATIONSHIPS, EMBEDDING_MODELS, client, neo4j_graph
 
 
 SEMANTIC_SEARCH_PROMPT = f'''
@@ -54,7 +54,7 @@ def define_query(prompt: str, model: str = "gpt-4o"):
 
 def create_embedding(text: str):
     """Function to create an embedding for a given text using OpenAI's API."""
-    result = client.embeddings.create(model=EMBEDDINGS_MODEL, input=text)
+    result = client.embeddings.create(model=EMBEDDING_MODELS["small"], input=text)
     return result.data[0].embedding
 
 
@@ -92,7 +92,7 @@ def similarity_search(prompt: str, threshold: float = 0.7):
             query = f'''
                 MATCH (e:{entity_label})
                 RETURN e
-                LIMIT 5
+                LIMIT 3
             '''
             while True:
                 try:
@@ -117,7 +117,7 @@ def similarity_search(prompt: str, threshold: float = 0.7):
             WITH e, dot_product / (sqrt(input_norm) * sqrt(embedding_norm)) AS cosine_similarity
             WHERE cosine_similarity > $threshold
             RETURN e
-            LIMIT 10
+            LIMIT 3
             '''
 
             while True:
