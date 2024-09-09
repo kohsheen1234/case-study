@@ -2,7 +2,28 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
 
+// https://www.partselect.com/Models/004621710A/
+
 async function scrapeModelDetails(url, headful = false) {
+  console.log(url)
+
+  const modelNumber = url.match(/\/Models\/([^\/]+)\//)[1];
+
+  console.log(modelNumber); // Output: FGHD2465NF1A
+   
+    // console.log('Extracted PS Code:', psCode);
+
+    // Define the path to the JSON file
+    jsonFilePath_ = path.join("./src/scrape/Data/Models/", `${modelNumber}.json`);
+    console.log(jsonFilePath_)
+
+    // Check if the JSON file already exists
+    if (fs.existsSync(jsonFilePath_)) {
+        console.log(`JSON file for ${modelNumber} already exists. Skipping...`);
+        return null;
+    }
+
+
   const browser = await puppeteer.launch({
     headless: !headful,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -212,4 +233,4 @@ module.exports = { scrapeModelDetails };
 
 
 // Example usage:
-scrapeModelDetails("https://www.partselect.com/Models/FGHD2465NF1A/");
+// scrapeModelDetails("https://www.partselect.com/Models/FGHD2465NF1A/");

@@ -1,3 +1,4 @@
+
+/src/srcape/*.json
 node_modules
-./src/scrape/Data/Parts/*
-./src/scrape/Data/Models/*
+

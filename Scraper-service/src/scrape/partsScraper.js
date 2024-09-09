@@ -201,7 +201,7 @@ async function scrapePartSelect(url) {
             partName,
             manufacturerPartNumber,
             manufacturer,
-            additionalManufacturers, // Add this field
+            additionalManufacturers,
             price,
             rating,
             reviewCount,
@@ -238,11 +238,6 @@ async function scrapePartSelect(url) {
         console.log(`Data scraped and saved successfully for part: ${partData.partSelectNumber}`);
 
 
-
-
-
-        // fs.writeFileSync(`${partData.partSelectNumber}.json`, JSON.stringify(partData, null, 2));
-        // console.log(`Data scraped and saved successfully for part: ${partData.partSelectNumber}`);
     } else {
         console.log('Failed to retrieve part number, data not saved.');
     }
