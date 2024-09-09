@@ -1,36 +1,42 @@
 export const getAIMessage = async (userQuery) => {
   try {
+    // Get the sessionId from sessionStorage
     const sessionId = sessionStorage.getItem("sessionId") || "";
 
-    const response = await fetch(
-      `http://localhost:8000/agent?message=${encodeURIComponent(
-        userQuery
-      )}&session=${encodeURIComponent(sessionId)}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const url = new URL("http://localhost:8000/agent");
+    url.searchParams.append("message", userQuery);
+    url.searchParams.append("session", sessionId);
 
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-
-    const data = await response.json();
-    console.log("AI Response: ", data);
-
-    const message = {
-      role: "assistant",
-      content: data.response,
+    // Set request options
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     };
 
-    return message;
-  } catch (error) {
-    console.error("Error fetching AI message: ", error);
+    // Fetch the response
+    const response = await fetch(url, options);
 
-    // Return a fallback message in case of an error
+    // Handle non-OK responses
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Parse the response
+    const data = await response.json();
+    console.log("AI Response:", data);
+
+    // Return the assistant message
+    return {
+      role: "assistant",
+      content: data.response || "No response available",
+    };
+  } catch (error) {
+    // Log the error for debugging purposes
+    console.error("Error fetching AI message:", error);
+
+    // Return a default error message
     return {
       role: "assistant",
       content: "Sorry, I couldn't process your request at this moment.",

@@ -455,10 +455,9 @@ async function scrapeModelDetails(url, headful = false) {
     sections: await getSectionsPdfLinks(),
     manuals: await getManualsLinks(),
     parts: await getParts(),
-    // QnA: await getQASection(),
-    // installationInstruction: await getInstallationInstruction(),
-    // youtubeVideos: await getYouTubeVideos(),
-   
+    QnA: await getQASection(),
+    installationInstruction: await getInstallationInstruction(),
+    youtubeVideos: await getYouTubeVideos(),
   };
 
   const jsonFilePath = path.join(__dirname, 'Data', 'Models', `${modelDetails.modelNum}.json`);

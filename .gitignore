@@ -1,7 +1,4 @@
 .venv
-Scraper-service/src/scrape/Data/Models/004621710A_symptoms_details.json
-*.json
+Scraper-service/src/scrape/Data/Models/
+Scraper-service/src/scrape/Data/Parts/
 
-# But not these JSON files
-!package.json
-!package-lock.json

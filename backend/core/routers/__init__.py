@@ -21,7 +21,7 @@ async def get_ai_message(message: str, request: Request):
     
     except Exception as e:
         # Log the error and return an HTTP 500 error
-        print(f"Error processing the request: {e}")
+        print(f"Error processing the stupid request: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
