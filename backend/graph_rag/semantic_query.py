@@ -16,7 +16,7 @@ SEMANTIC_SEARCH_PROMPT = f'''
 
     Depending on the user prompt, determine if it is possible to answer with the graph database.
         
-    The graph database can match models, parts, symptoms, and other entities with multiple relationships to several entities.
+    Sometimes the 'description' of the part contains the installation installation instructions, be sure to read fully,pickup anything relevant. The graph database can match models, parts, symptoms, and other entities with multiple relationships to several entities.
     
     Example user input:
     "Which parts are compatible with the FPHD2491KF0 model?"

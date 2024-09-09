@@ -6,6 +6,7 @@ from graph_rag.ai_agent import MemorySequentialAgent
 
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 agent_executor = MemorySequentialAgent(memory=memory) 
+# agent_executor = MemoryParallelAgent(memory=memory)
 
 
 def ask_agent(message: str) -> dict:

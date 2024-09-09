@@ -158,7 +158,7 @@ async function insertModelSymptomData(modelDetails) {
             for (const part of symptom.details) {
                 await tx.run(
                     `MATCH (s:Symptom {name: $symptomName})
-                     MERGE (p:Part {manufacturerPartNumber: $partNumber})
+                     MERGE (p:Part {partNumber: $partNumber})
                      SET p.partName = $partName, 
                          p.fixPercentage = $fixPercentage, 
                          p.partPrice = $partPrice,
@@ -166,7 +166,7 @@ async function insertModelSymptomData(modelDetails) {
                      MERGE (s)-[:FIXED_BY]->(p)`,
                     {
                         symptomName: symptom.symptomName,
-                        manufacturerPartNumber: part.partNumber,
+                        partNumber: part.partNumber,
                         partName: part.partName,
                         fixPercentage: part.fixPercentage,
                         partPrice: part.partPrice,
@@ -179,7 +179,7 @@ async function insertModelSymptomData(modelDetails) {
         // Commit the transaction after all operations
         await tx.commit();
     } catch (error) {
-        console.error('Error inserting model data:', error);
+        console.error('Error inserting model symptom data:', error);
         await tx.rollback(); // Rollback on error
     } finally {
         await session.close(); // Ensure the session is closed
@@ -224,7 +224,7 @@ async function insertModelData(modelDetails) {
             modelNum: modelDetails.modelNum
           }
         );
-        console.log(`Section ${section.name} related to model ${modelDetails.modelNum}`);
+        // console.log(`Section ${section.name} related to model ${modelDetails.modelNum}`);
       }
   
       // Insert manuals and relate them to the model
@@ -277,6 +277,94 @@ async function insertModelData(modelDetails) {
     }
   }
 
-module.exports = { insertPartData, insertModelData, insertModelSymptomData };
+async function insertModelInstructionData(instructions) {
+    const session = driver.session();
+    const tx = session.beginTransaction();
+
+    try {
+        // Debugging: Log instructions to verify it's received correctly
+        console.log("Received instructions:", JSON.stringify(instructions, null, 2));
+
+        // Check if instructions is an array and has data
+        if (!Array.isArray(instructions) || instructions.length === 0) {
+            console.log("No instructions to insert. Skipping...");
+            return;
+        }
+
+        // Proceed with inserting instructions into Neo4j
+        for (const instruction of instructions) {
+            // Check if the modelNumber exists
+            if (!instruction.modelNumber) {
+                throw new Error("Model number (modelNumber) is missing from instruction.");
+            }
+
+            console.log(`Inserting data for model: ${instruction.modelNumber}`);
+
+            // Insert the model node with the associated properties
+            await tx.run(
+                `MERGE (m:Model {modelNumber: $modelNumber})
+                 ON CREATE SET m.createdAt = timestamp()`,
+                {
+                    modelNumber: instruction.modelNumber
+                }
+            );
+
+            console.log(`Model ${instruction.modelNumber} inserted or updated.`);
+
+            // Insert the instruction and relate it to the model
+            await tx.run(
+                `MERGE (i:Instruction {title: $title})
+                 SET i.description = $description,
+                     i.difficulty = $difficulty,
+                     i.repairTime = $repairTime,
+                     i.helpfulVotes = $helpfulVotes
+                 MERGE (m:Model {modelNumber: $modelNumber})
+                 MERGE (m)-[:HAS_INSTRUCTION]->(i)`,
+                {
+                    title: instruction.title,
+                    description: instruction.description || 'No description',
+                    difficulty: instruction.difficulty || 'No difficulty info',
+                    repairTime: instruction.repairTime || 'No repair time info',
+                    helpfulVotes: instruction.helpfulVotes || 'No helpful votes',
+                    modelNumber: instruction.modelNumber
+                }
+            );
+
+            console.log(`Instruction "${instruction.title}" related to model ${instruction.modelNumber}`);
+
+            // Insert parts related to each instruction
+            if (Array.isArray(instruction.partsUsed)) {
+                for (const part of instruction.partsUsed) {
+                    await tx.run(
+                        `MERGE (p:Part {partName: $partName, partUrl: $partUrl})
+                         MERGE (i:Instruction {title: $title})
+                         MERGE (p)-[:USED_IN]->(i)`,
+                        {
+                            partName: part.partName || 'Unknown Part',
+                            partUrl: part.partUrl || 'No URL',
+                            title: instruction.title
+                        }
+                    );
+                    console.log(`Part "${part.partName}" related to instruction "${instruction.title}"`);
+                }
+            } else {
+                console.log(`No parts found for instruction "${instruction.title}".`);
+            }
+        }
+
+        // Commit the transaction after all operations
+        await tx.commit();
+        console.log(`Instructions and parts successfully inserted into Neo4j.`);
+
+    } catch (error) {
+        console.error('Error inserting model instructions and parts:', error);
+        await tx.rollback(); // Rollback on error
+    } finally {
+        await session.close(); // Ensure the session is closed
+    }
+}
+
+
+module.exports = { insertPartData, insertModelData, insertModelSymptomData,insertModelInstructionData };
 
 

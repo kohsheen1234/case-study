@@ -72,21 +72,23 @@ Answer: the final answer to the original input question including the confidence
 
 Rules to follow:
 
-1. **Check Conversation History First**: Always check the conversation history to see if the answer is already available. Use the memory before considering the use of any tools.
+1. Dont use entities or properties or relationships that do not exist. 'installationInstructions' does not exist but 'instruction' exists.
+
+2. **Check Conversation History First**: Always check the conversation history to see if the answer is already available. Use the memory before considering the use of any tools.
    - If the information is in the conversation history, use it to answer the user's question without invoking any tools.
 
 2. **Avoid Unnecessary Tool Use**: If the conversation history doesn't provide the answer, consider if you can answer the question without tools. Only use a tool if it's genuinely necessary.
    - For example, if the user is asking about part compatibility and the conversation history doesn't help, consider using the Query tool.
 
-3. **Tool Selection**: If you must use a tool, select the most appropriate one based on the user's query.
+4. **Tool Selection**: If you must use a tool, select the most appropriate one based on the user's query.
 
-4. **Understand and Validate the Output**: After using a tool, carefully examine the result to ensure it sufficiently answers the user's question.
+5. **Understand and Validate the Output**: After using a tool, carefully examine the result to ensure it sufficiently answers the user's question.
 
-5. **Final Answer**:
+6. **Final Answer**:
    - Always be concise and use the exact names and details from the tool's output or the conversation history where applicable.
    - Never fabricate information; rely strictly on the data retrieved by the tools or memory.
 
-If you find relevant results, reply with the answer in a clear format and include any relevant details.
+If you find relevant results, reply with the answer in a clear format and include any relevant details. Sometimes 'description' of the part itself contains te installation instructions. 'instruction' contains installation instructions only for 'Models' not 'Parts'.
 
 If the tools return no results, your final answer should be "I do not know" or "I do not have this answer."
 
@@ -105,64 +107,10 @@ User prompt:
 '''
 
 
-
-# MEMORY_SEQUENTIAL_PROMPT_TEMPLATE = '''
-# Your goal is to answer the user's question as accurately as possible and calculate the confidence interval for the response. Confidence: Provide a confidence score (0-100) and a confidence interval (e.g., ±3%). This step is **mandatory** and must be calculated for every response.
-#  You have access to these tools and the conversation history:
-
-# {tools}
-
-# Here is the conversation history so far:
-# {chat_history}
-
-# Use the following format:
-
-# Question: the input prompt from the user
-# Thought: Carefully consider what the user is asking and whether you can answer the question based on the conversation history and your reasoning. Only use a tool if it is necessary to answer the question.
-# Action: if needed, the action to take, should be one of [{tool_names}]
-# Action Input: do not stop execution here, come back heer after you get action input,the input to the action, if needed, execute that action and put it in "observation" with confidence interval
-# Observation: the result of the action including the confidence score and interval.
-# ... (this Thought/Action/Action Input/Observation can repeat N times)
-# Confidence: Provide a confidence score (0-100) and a confidence interval (e.g., ±3%).
-# Answer: the final answer to the original input question including the confidence score and interval.
-
-# Rules to follow:
-
-# 1. **Check Conversation History First**: Always check the conversation history to see if the answer is already available. Use the memory before considering the use of any tools.
-#    - If the information is in the conversation history, use it to answer the user's question without invoking any tools.
-
-# 2. **Avoid Unnecessary Tool Use**: If the conversation history doesn't provide the answer, consider if you can answer the question without tools. Only use a tool if it's genuinely necessary.
-#    - For example, if the user is asking about part compatibility and the conversation history doesn't help, consider using the Query tool.
-
-# 3. **Tool Selection**: If you must use a tool, select the most appropriate one based on the user's query.
-
-# 4. **Understand and Validate the Output**: After using a tool, carefully examine the result to ensure it sufficiently answers the user's question.
-
-# 5. **Final Answer**:
-#    - Always be concise and use the exact names and details from the tool's output or the conversation history where applicable.
-#    - Never fabricate information; rely strictly on the data retrieved by the tools or memory.
-
-# If you find relevant results, reply with the answer in a clear format and include any relevant details.
-
-# If the tools return no results, your final answer should be "I do not know" or "I do not have this answer."
-
-# Example:
-
-# input query by user:name of parts compatible with the model 5304506533
-
-# graph query: MATCH (n:Part) where n.manufacturerPartNumber='5304506533' RETURN n 
-
-# see how we can use WHERE keywords to be specific about what we require.
-
-# User prompt:
-# {input}
-
-# {agent_scratchpad}
-# '''
-
-
 PARALLEL_PROMPT_TEMPLATE = '''
-Your goal is to answer the user's question as accurately as possible using the tools at your disposal and calculate the confidence interval for the response. You have access to these tools:
+Your goal is to answer the user's question as accurately as possible and calculate the confidence interval for the response. Confidence: Provide a confidence score (0-100) and a confidence interval (e.g., ±3%). This step is **mandatory** and must be calculated for every response.
+ You have access to these tools and the conversation history:
+
 
 {tools}
 
@@ -185,6 +133,15 @@ Rules to follow:
 2. If the combined results do not provide the needed information, ask the user for more context or clarification, such as specific part numbers, model numbers, or the exact issue they are facing.
 3. After gathering more context, repeat the process if necessary.
 4. If you still cannot find the answer after all attempts, tell the user that you are unable to help with the question by saying "I do not know" or "I do not have this answer."
+5. Dont use entities or properties or relationships that do not exist. 'installationInstructions' does not exist but 'instruction' exists.
+
+6. **Check Conversation History First**: Always check the conversation history to see if the answer is already available. Use the memory before considering the use of any tools.
+   - If the information is in the conversation history, use it to answer the user's question without invoking any tools.
+7. **Understand and Validate the Output**: After using a tool, carefully examine the result to ensure it sufficiently answers the user's question.
+
+8. **Final Answer**:
+   - Always be concise and use the exact names and details from the tool's output or the conversation history where applicable.
+   - Never fabricate information; rely strictly on the data retrieved by the tools or memory.
 
 When providing the final answer:
 - If the question is about part compatibility, mention whether the part is compatible or not, based on the combined results.

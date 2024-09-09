@@ -1,7 +1,31 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
+const path = require("path");
 
 async function ModelSymptomDetails(url) {
+
+    // Generate model ID from the URL
+  const modelId = url.split('/').filter(Boolean).pop().replace(/\s+/g, '_');
+
+
+    // const modelNumber =url.match(/\/Models\/([^\/]+)\//)[1];
+
+    console.log("modelno:")
+  console.log(modelId); // Output: 004621710A
+   
+    // console.log('Extracted PS Code:', psCode);
+
+    // Define the path to the JSON file
+    jsonFilePath_ = path.join("./src/scrape/Data/Models/", `${modelId}_symptoms_details.json`);
+    console.log(jsonFilePath_)
+
+    // Check if the JSON file already exists
+    if (fs.existsSync(jsonFilePath_)) {
+        console.log(`JSON file for ${modelId} symptoms already exists. Skipping...`);
+        return null;
+    }
+
+
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto(url, { waitUntil: 'load', timeout: 0 });
@@ -55,19 +79,19 @@ async function ModelSymptomDetails(url) {
 
   await browser.close();
 
-  // Generate model ID from the URL
-  const modelId = url.split('/').filter(Boolean).pop().replace(/\s+/g, '_');
-
+  
   // Store the scraped data in a JSON file
   const modelDetails = {
       modelId : modelId,
       symptoms: allSymptomDetails.length > 0 ? allSymptomDetails : "No symptom details available"
   };
 
-//   const jsonFilePath = path.join(__dirname, 'Data', 'Models', `${modelDetails.modelNum}.json`);
-//   fs.writeFileSync(jsonFilePath, JSON.stringify(modelDetails, null, 2));
 
-  fs.writeFileSync(`${modelId}_symptoms_details.json`, JSON.stringify(modelDetails, null, 2));
+    const dirPath = path.join(__dirname, 'Data', 'Models'); 
+    jsonFilePath = path.join(dirPath, `${modelId}_symptoms_details.json`);
+
+
+  fs.writeFileSync(jsonFilePath, JSON.stringify(modelDetails, null, 4));
   console.log(`Model details saved as ${modelId}_symptoms_details.json`);
 
   return modelDetails;
