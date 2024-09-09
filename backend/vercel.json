@@ -14,8 +14,6 @@
     ],
     "env": {
            "APP_MODULE": "main:app" 
-       },
-    "buildCommand": "pip install -r requirements.txt",
-    "startCommand": "uvicorn main:app --host 0.0.0.0"
+       }
   }
   
