@@ -13,9 +13,9 @@ logging.basicConfig()
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 neo4j_graph = Neo4jGraph(
-    url=os.environ.get("NEO4J_CURRENT_URI"),
-    username=os.environ.get("NEO4J_CURRENT_USERNAME"),
-    password=os.environ.get("NEO4J_CURRENT_PASSWORD"),
+    url=os.environ.get("NEO4J_URI"),
+    username=os.environ.get("NEO4J_USERNAME"),
+    password=os.environ.get("NEO4J_PASSWORD"),
 )
 
 # Constants

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from core.routers import router
+import uvicorn
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -14,6 +15,7 @@ app = FastAPI()
 secret_key = os.getenv("SECRET_KEY")
 
 app.add_middleware(SessionMiddleware, secret_key=secret_key)
+
 # Add session middleware with the secret key
 # Allow CORS from any origin (allow_origins=["*"])
 app.add_middleware(
@@ -36,6 +38,5 @@ app.include_router(
 
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
