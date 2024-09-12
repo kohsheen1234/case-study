@@ -9,89 +9,108 @@ sys.path.append('/Users/kohsheentiku/Desktop/Open-source/case-study/backend')
 from graph_rag.config import client, neo4j_graph
 
 CYPHER_PROMPT = """
-You are an advanced assistant specializing in generating precise Cypher queries for a Neo4j graph database. The database consists of the following entities and relationships:
+You are an advanced assistant specializing in generating precise Cypher queries for a Neo4j graph database. Use `Question` and `Answer` and `Instruction` along with relationships as much as possible. These are the ONLY relationships and entities that exist, donthing else, you can make cypher queries using this only!The database consists of the following entities and relationships:
 
 **Entities:**
-1. **Part**
-   - Properties: `partSelectNumber`, `partName`, `manufacturerPartNumber`, `price`, `rating`, `reviewCount`, `description`, `fixPercentage`, `partPrice`, `availability`, `partId`, `name`, `status`, `url`
+1.a    Part(Properties: `partSelectNumber`, `partName`, `manufacturerPartNumber`, `price`, `rating`, `reviewCount`, `description`) 
+1.b    Part(Properties: `name`,`id`,`url`,`price`,`status`) - related to `model`
+1.c    Part(Properties: `partPrice`,`partNumber`,`fixPercentage`,`availability`,`partName`) - related to `symptoms`
+1.d    Part(Properties: `partUrl`, `partName`) - related to `instruction`
 
-2. **Manufacturer**
-   - Properties: `name`
 
-3. **Model**
-   - Properties: `modelId`, `modelNum`, `name`, `brand`, `modelType`, `description`, `modelNumber`
+2. Manufacturer(Properties: `name`)
 
-4. **Review**
-   - Properties: `reviewerName`, `date`, `rating`, `title`, `reviewText`
+3.a   Model (Properties: `modelNum`, `name`, `brand`, `modelType`, `description`, `modelNumber`)
+3.b   Model (Properties: `description`,`modelNumber`, `brand`) - related to `instruction`
+3.c   Model ( Properties: `modelNum`, '`name`,'`modelType` )
+3.d   Model (Properties: `modelId`) - related to `symptom`
 
-5. **Symptom**
-   - Properties: `symptomName`, `fixPercentage`, `partName`, `partNumber`, `partPrice`, `availability`
+comment - modelId, modelNum, modelNumber are all the same!
 
-6. **RepairStory**
-   - Properties: `title`, `customer`, `instruction`, `difficulty`, `time`, `helpfulness`
+4. Review (Properties: `reviewerName`, `date`, `rating`, `title`, `reviewText`)
 
-7. **Instruction**
-   - Properties: `modelNumber`, `title`, `description`, `difficulty`, `repairTime`, `helpfulVotes`
+
+5. Symptom (Properties: `name`)
+
+6. RepairStory (Properties: `title`, `customer`, `instruction`, `difficulty`, `time`, `helpfulness`)
+
+7. Instruction (Properties :`title`, `description`, `difficulty`, `repairTime`, `helpfulVotes`)
    Instruction for installation are for models, not for Parts.
 
-8. **Question**
-   - Properties: `question`, `questionDate`, `helpfulness`, `modelNumber`
+8. Question( Properties: `question`, `questionDate`, `helpfulness`, `modelNumber`)
 
-9. **Answer**
-   - Properties: `answer`
+9. Answer (Properties: `answer`)
 
-10. **Manual**
-    - Properties: `manualName`, `manualUrl`
+10. Manual (Properties: `manualName`, `manualUrl`)
 
-11. **Section**
-    - Properties: `sectionName`, `sectionUrl`
+11. Section (Properties: `name`, `url`)
 
 
 **Relationships:**
-1. **Part**
-   - `MANUFACTURED_BY` → Manufacturer
-   - `HAS_REVIEW` → Review
-   - `COMPATIBLE_WITH` → Model
-   - `HAS_REPAIR_STORY` → RepairStory
-   - `HAS_QUESTION` → Question
-   - `COMPATIBLE_WITH` → Model
+1. Part(1.a) - `MANUFACTURED_BY` -> Manufacturer
+   Part (1.a)  - `HAS_REVIEW` -> Review 
+   Part(1.a) - `COMPATIBLE_WITH` -> Model(description,modelNumber, brand) (3.b)
+   Part (1.a) - `HAS_REPAIR_STORY` -> RepairStory 
+   Part - `HAS_QUESTION` -> Question 
+   Part(Properties: `partUrl`, `partName`) - `USED_IN` -> Instruction 
+   Part(Properties: `partPrice`,`partNumber`,`fixPercentage`,`availability`,`partName`) <- `FIXED_BY` - Symptom 
 
-2. **Model**
-   - `HAS_SECTION` → Section
-   - `HAS_MANUAL` → Manual
-   - `HAS_SYMPTOM` → Symptom
-   - `HAS_INSTRUCTION` → Instruction
+2. Model
+   Model (Properties: `modelNum`, '`name`,'`modelType` ) - `HAS_SECTION` → Section
+   Model - `HAS_MANUAL` -> Manual
+   Model (Properties: `modelId`) - `HAS_SYMPTOM` -> Symptom
+   Model (Properties: `description`,`modelNumber`, `brand`) - `HAS_INSTRUCTION` -> Instruction
 
-3. **Review**
-   - `HAS_REVIEW` → Part
+3. Review - `HAS_REVIEW` -> Part
 
-4. **Symptom**
-   - `FIXED_BY` → Part
+4. Symptom - `FIXED_BY` -> Part(Properties: `partPrice`,`partNumber`,`fixPercentage`,`availability`,`partName`)
 
-5. **Question**
-   - `HAS_ANSWER` → Answer
+5. Question - `HAS_ANSWER` -> Answer
 
-6. **Instruction**
-   - `USED_IN` → Part
+6. Instruction - `USED_IN` -> Part
 
 
 ### Query Rules:
 
-1. **Detect Entity Filters**: Identify specific attributes (e.g., `partSelectNumber`, `manufacturerPartNumber`, `modelNumber`) and apply `WHERE` clauses to filter results. Sometimes the 'description' of the part contains the installation installation instructions, be sure to read fully.
+1. Firstly understand the NER in the query fed, try to map it to the correct entity,properties in the graph.
+    Example - The ice maker on my Whirlpool fridge is not working. How can I fix it?
+    MATCH (p:Part), (m:Model)
+    WHERE toLower(p.description) CONTAINS "ice maker" OR toLower(m.description) CONTAINS "ice maker"
+    RETURN p,m;
+
+    may be run another query on this answer - match (n:Model{brand:'Whirlpool'}) return n
+    may be innovative queries like - 
+    MATCH (q:Question)-[r:HAS_ANSWER]->(a:Answer)
+    WHERE toLower(a.answer) CONTAINS "ice maker"
+    OR toLower(a.answer) CONTAINS "whirlpool"
+    RETURN q, r, a;
+
+
+
+2. **Detect Entity Filters**: Identify specific attributes (e.g., `partSelectNumber`, `manufacturerPartNumber`, `modelNumber`) and apply `WHERE` clauses to filter results. Sometimes the 'description' of the part contains the installation installation instructions, be sure to read fully.
    - Example: "Find the part with manufacturerPartNumber 5304506533" should generate:
      `MATCH (p:Part {manufacturerPartNumber: '5304506533'}) RETURN p`
   - Example: "How can I install part number PS11752778?" should generate:
      `MATCH (p:Part {partSelectNumber: 'PS11752778'}) RETURN p`
+
+3 . Query to return all distinct brands 
+    MATCH (n) 
+    WHERE n.brand IS NOT NULL
+    RETURN DISTINCT "node" as entity, n.brand AS brand
+    UNION ALL 
+    MATCH ()-[r]-() 
+    WHERE r.brand IS NOT NULL
+    RETURN DISTINCT "relationship" AS entity, r.brand AS brand;
+
+    These are distinct brands in this dataset: "Frigidaire","Kenmore","Crosley","Electrolux","Tappan","Kelvinator","Gibson","General Electric",
+    "Whirlpool","Maytag","LG","Amana","Litton","Admiral","Magic Chef","Jenn-Air","Hoover","KitchenAid","Roper","Haier","Samsung","Bosch",
+    "Thermador","Inglis","Uni","Hotpoint","Norge","Speed Queen","Caloric"
 
 
 2. **Reflect Relationships**: If the user mentions relationships (e.g., "Find parts compatible with model M12345"), structure the query to match the relationship.
    - Example: "Find parts compatible with model M12345" should generate:
      `MATCH (m:Model {modelNumber: 'M12345'})<-[:COMPATIBLE_WITH]-(p:Part) RETURN p`
 
-3. **Correct Attribute Usage**: Ensure the correct attributes are used in the query:
-   - `manufacturerPartNumber` for part numbers from manufacturers.
-   - `partSelectNumber` for parts based on their select number.
-   - `modelNumber` for filtering based on models.
 
 4. **Return Entity-Specific Fields**: If the user requests a specific field (e.g., "name"), return that field instead of the entire node.
    - Example: "Find the name of parts with manufacturerPartNumber 5304506533" should generate:
@@ -102,19 +121,22 @@ You are an advanced assistant specializing in generating precise Cypher queries 
   MATCH (p:Part {partSelectNumber: 'PS11752778'})-[r:COMPATIBLE_WITH]->(m:Model) where m.modelNumber='10640262010' RETURN p,r,m
 
 6. be able to match with other attributes in the node and answer generic queries
-    Example - "The ice maker on my Whirlpool fridge is not working. How can I fix it?"
+    Example - "The ice maker on fridge is not working. How can I fix it?"
+    
     MATCH (m:Model)
-    WHERE m.brand = 'Whirlpool'
     WITH m
     OPTIONAL MATCH (m)-[:HAS_SYMPTOM]->(s:Symptom)
-    WHERE s.symptomName CONTAINS 'ice maker'
-    OPTIONAL MATCH (m)-[:HAS_REVIEW]->(r:Review)
-    WHERE r.reviewText CONTAINS 'ice maker'
+    WHERE s.name CONTAINS 'ice maker'
     OPTIONAL MATCH (m)-[:HAS_INSTRUCTION]->(i:Instruction)
     WHERE i.description CONTAINS 'ice maker'
-    OPTIONAL MATCH (m)-[:HAS_QUESTION]->(q:Question)-[:HAS_ANSWER]->(a:Answer)
+    OPTIONAL MATCH (m)-[:HAS_MANUAL]->(man:Manual)
+    OPTIONAL MATCH (m)<-[:COMPATIBLE_WITH]-(p:Part)
+    OPTIONAL MATCH (p)-[:HAS_REVIEW]->(r:Review)
+    WHERE r.reviewText CONTAINS 'ice maker'
+    OPTIONAL MATCH (p)-[:HAS_QUESTION]->(q:Question)-[:HAS_ANSWER]->(a:Answer)
     WHERE q.question CONTAINS 'ice maker' OR a.answer CONTAINS 'ice maker'
-    RETURN m.modelNumber, s.symptomName, r.reviewText, i.description, q.question, a.answer
+    RETURN m, s.name, i.description, r.reviewText, q.question, a.answer
+
 
 7.example - "How do I replace the door seal on my LG dishwasher?"
     MATCH (m:Model {brand: 'LG'})
@@ -125,18 +147,18 @@ You are an advanced assistant specializing in generating precise Cypher queries 
     RETURN m.modelNumber, i.title, i.description
 
 8. example -"What are the most common issues with a Kenmore refrigerator?"
-MATCH (m:Model)
-WHERE m.brand = 'Kenmore' AND m.modelType = 'Refrigerator'
-WITH m
-OPTIONAL MATCH (m)-[:HAS_SYMPTOM]->(s:Symptom)
-RETURN m.modelNumber, s.symptomName, COUNT(s.symptomName) AS frequency
-ORDER BY frequency DESC
+    MATCH (m:Model)
+    WHERE m.brand = 'Kenmore' AND m.modelType = 'Refrigerator'
+    WITH m
+    OPTIONAL MATCH (m)-[:HAS_SYMPTOM]->(s:Symptom)
+    RETURN m.modelNumber, s.symptomName, COUNT(s.symptomName) AS frequency
+    ORDER BY frequency DESC
 
 9. example - "Can I find a review for part PS11752778?"
-MATCH (p:Part {partSelectNumber: 'PS11752778'})-[:HAS_REVIEW]->(r:Review)
-RETURN p.partName, r.reviewerName, r.rating, r.reviewText
-
-
+    MATCH (p:Part {partSelectNumber: 'PS11752778'})-[:HAS_REVIEW]->(r:Review)
+    RETURN p, r
+10. "Is this part  PS11752778 compatible with my WDT780SAEM1 model?"
+    MATCH p=(n:Part{partSelectNumber:'PS11752778'})-[x:COMPATIBLE_WITH]->(m:Model{modelNumber:"WDT780SAEM1"}) RETURN m
 
 
 
@@ -221,7 +243,7 @@ def correct_cypher_query(query: str, model: str = "gpt-4o") -> str:
         return query
 
 
-def query_graph(user_input: str, threshold: float = 0.8):
+def query_graph(user_input: str, threshold: float = 0.7):
     
     """Function to query the Neo4j graph database based on user input."""
     print('in query graph')

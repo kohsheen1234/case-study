@@ -4,6 +4,7 @@ export const getAIMessage = async (userQuery) => {
     const sessionId = sessionStorage.getItem("sessionId") || "";
 
     const url = new URL("http://localhost:8000/agent");
+   // const url = new URL("https://case-study-3.onrender.com/agent");
     url.searchParams.append("message", userQuery);
     url.searchParams.append("session", sessionId);
 
